@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>UPTHRUST | Subterranean Mine Safety, Monitoring & Autonomous Rescue System</title>
+  <meta name="description" content="Team Upthrust - AI-Powered Underground Mine Safety, Monitoring & Autonomous Rescue System | RPLiDAR SLAM, FLIR Thermal, ROS 2 Jazzy & Nav2 Command Console">
+  
+  <!-- Untitled UI Typography: Inter (UI) + JetBrains Mono (data/telemetry) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    (function () {
+      try {
+        localStorage.removeItem('upthrust-theme');
+        document.documentElement.removeAttribute('data-theme');
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- Master Container: Strict 16:9 Desktop Viewport - Zero Scroll -->
+  <div id="app-root" class="dashboard-grid-container">
+
+    <!-- ========================================================================= -->
+    <!-- 1. TOP STATUS BAR (Team Upthrust Ground Control Station Header)           -->
+    <!-- ========================================================================= -->
+    <header id="top-status-bar" class="hud-panel top-bar">
+      
+      <!-- 1. Left: Team Upthrust Branding -->
+      <div class="top-branding">
+        <div class="team-brand-badge">
+          <img src="upthrust_logo.png" alt="Team Upthrust Logo" class="team-logo-img">
+        </div>
+        <div class="branding-text">
+          <div class="brand-title-row">
+            <span class="team-name">UPTHRUST</span>
+            <span class="brand-divider">/</span>
+            <span class="system-title">Mine Rescue GCS</span>
+            <span class="badge-ros">ROS 2 Jazzy</span>
+            <span class="badge-drone-id">UAV-01 · Hex</span>
+          </div>
+          <div class="sub-title">
+            <span>Sector Delta-7 (−240m)</span>
+            <span class="sub-sep">•</span>
+            <span>RPLiDAR SLAM</span>
+            <span class="sub-sep">•</span>
+            <span>ArduPilot 4.5.1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Middle: Spread Out Flight Telemetry Status Boxes -->
+      <div class="status-group flight-status-group">
+        
+        <!-- State Box (Green) -->
+        <div class="status-chip chip-state" id="badge-drone-state">
+          <span class="status-dot pulsing"></span>
+          <span class="chip-label">State</span>
+          <span class="chip-val highlight-green" id="val-drone-state">Armed • Auto</span>
+        </div>
+
+        <!-- Nav Box (Orange / Amber) -->
+        <div class="status-chip chip-nav" id="badge-gps-denied" title="GPS-Denied Mine: RPLiDAR 2D SLAM + Optical Flow Fusion">
+          <span class="chip-icon">⚡</span>
+          <span class="chip-label">Nav</span>
+          <span class="chip-val highlight-amber" id="val-gps-mode">GPS-denied · SLAM</span>
+        </div>
+
+        <!-- Mode Box (Cyan / Blue) -->
+        <div class="status-chip chip-mode">
+          <span class="chip-label">Mode</span>
+          <span class="chip-val highlight-cyan" id="val-flight-mode">Guided</span>
+        </div>
+
+        <!-- Battery Box (Green / Slate) -->
+        <div class="status-chip battery-chip" id="block-battery" title="6S LiPo Telemetry">
+          <span class="chip-label">Battery</span>
+          <div class="mini-batt-track">
+            <div class="mini-batt-fill" id="battery-fill" style="width: 82%;"></div>
+          </div>
+          <span class="chip-val highlight-green" id="val-battery-pct">82%</span>
+          <span class="batt-v-text" id="val-battery-volts">22.8V</span>
+        </div>
+
+        <!-- Comms Box (Cyan / Slate) -->
+        <div class="status-chip comms-chip" title="Ubiquiti 5.8GHz Mesh Video & Data Link">
+          <span class="signal-bars">
+            <i class="bar b1 active"></i><i class="bar b2 active"></i><i class="bar b3 active"></i><i class="bar b4 active"></i>
+          </span>
+          <span class="chip-label">Comms</span>
+          <span class="chip-val highlight-cyan" id="val-mesh-latency">Mesh 24ms</span>
+        </div>
+
+      </div>
+
+      <!-- 3. Right: Mission Clock & Action Buttons -->
+      <div class="status-group utility-group">
+        <div class="clock-display">
+          <span class="mission-clock-label">T+</span>
+          <span class="mission-timer-val" id="val-mission-timer">00:14:38</span>
+        </div>
+
+        <div class="header-action-btns">
+          <button id="btn-audio-toggle" class="hud-btn-icon" title="Toggle Tactical Audio Feedback">
+            <svg viewBox="0 0 24 24" class="icon-svg" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08"></path>
+            </svg>
+          </button>
+          <button id="btn-fullscreen-toggle" class="hud-btn-icon" title="Toggle Fullscreen 16:9 View">
+            <svg viewBox="0 0 24 24" class="icon-svg" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- 2. MAIN 3-COLUMN WORKSPACE (De-congested 16:9 Engineering Layout)         -->
+    <!-- ========================================================================= -->
+    <main class="dashboard-body">
+
+      <!-- ===================================================================== -->
+      <!-- LEFT COLUMN: ATMOSPHERIC GAS MONITOR (EXPANDED TO FULL HEIGHT)        -->
+      <!-- ===================================================================== -->
+      <aside class="side-column left-column">
+
+        <!-- 2.1 Environmental & Hazardous Gas Sensors -->
+        <section class="hud-panel card-gas-telemetry" id="panel-gas-readings">
+          <div class="panel-header">
+            <div class="header-title-wrap">
+              <svg viewBox="0 0 24 24" class="panel-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"></path>
+                <path d="M9.6 4.6A2 2 0 1 1 11 8H2"></path>
+                <path d="M12.6 19.4A2 2 0 1 0 14 16H2"></path>
+              </svg>
+              <h2>Atmospheric Gases</h2>
+            </div>
+            <span class="header-tag-pill safe-state" id="gas-overall-badge">Stable</span>
+          </div>
+
+          <div class="gas-cards-container">
+            <!-- Carbon Monoxide (CO - MQ-7 Sensor) -->
+            <div class="gas-metric-card" id="card-gas-co">
+              <div class="gas-card-top-row">
+                <div class="gas-title-group">
+                  <span class="gas-icon-chip icon-co">CO</span>
+                  <div class="gas-name-group">
+                    <span class="gas-full">Carbon Monoxide</span>
+                    <span class="gas-sensor-tag">MQ-7 sensor</span>
+                  </div>
+                </div>
+                <span class="gas-status-badge badge-safe" id="badge-co">Safe</span>
+              </div>
+              <div class="gas-card-mid-row">
+                <div class="gas-threshold-info">NIOSH REL 35 ppm · PEL 50 ppm</div>
+                <div class="gas-val-wrap">
+                  <span class="gas-value" id="val-gas-co">18</span>
+                  <span class="gas-unit">ppm</span>
+                </div>
+              </div>
+              <div class="gas-level-bar-track">
+                <div class="gas-level-bar-fill bar-safe" id="bar-gas-co" style="width: 25%;"></div>
+              </div>
+            </div>
+
+            <!-- Methane (CH4 - MQ-4 Sensor) -->
+            <div class="gas-metric-card" id="card-gas-ch4">
+              <div class="gas-card-top-row">
+                <div class="gas-title-group">
+                  <span class="gas-icon-chip icon-ch4">CH₄</span>
+                  <div class="gas-name-group">
+                    <span class="gas-full">Methane Gas</span>
+                    <span class="gas-sensor-tag">MQ-4 sensor</span>
+                  </div>
+                </div>
+                <span class="gas-status-badge badge-warning" id="badge-ch4">Warning</span>
+              </div>
+              <div class="gas-card-mid-row">
+                <div class="gas-threshold-info">MSHA action 1.0% · Evac 2.0%</div>
+                <div class="gas-val-wrap">
+                  <span class="gas-value" id="val-gas-ch4">1.75</span>
+                  <span class="gas-unit">% LEL</span>
+                </div>
+              </div>
+              <div class="gas-level-bar-track">
+                <div class="gas-level-bar-fill bar-warning" id="bar-gas-ch4" style="width: 58%;"></div>
+              </div>
+            </div>
+
+            <!-- Carbon Dioxide (CO2 - SCD40 NDIR Sensor) -->
+            <div class="gas-metric-card" id="card-gas-co2">
+              <div class="gas-card-top-row">
+                <div class="gas-title-group">
+                  <span class="gas-icon-chip icon-co2">CO₂</span>
+                  <div class="gas-name-group">
+                    <span class="gas-full">Carbon Dioxide</span>
+                    <span class="gas-sensor-tag">SCD40 sensor</span>
+                  </div>
+                </div>
+                <span class="gas-status-badge badge-safe" id="badge-co2">Safe</span>
+              </div>
+              <div class="gas-card-mid-row">
+                <div class="gas-threshold-info">Threshold &lt;5000 ppm (0.5% vol)</div>
+                <div class="gas-val-wrap">
+                  <span class="gas-value" id="val-gas-co2">840</span>
+                  <span class="gas-unit">ppm</span>
+                </div>
+              </div>
+              <div class="gas-level-bar-track">
+                <div class="gas-level-bar-fill bar-safe" id="bar-gas-co2" style="width: 17%;"></div>
+              </div>
+            </div>
+
+            <!-- Hydrogen Sulphide (H2S - MQ-136 Sensor) -->
+            <div class="gas-metric-card" id="card-gas-h2s">
+              <div class="gas-card-top-row">
+                <div class="gas-title-group">
+                  <span class="gas-icon-chip icon-h2s">H₂S</span>
+                  <div class="gas-name-group">
+                    <span class="gas-full">Hydrogen Sulphide</span>
+                    <span class="gas-sensor-tag">MQ-136 sensor</span>
+                  </div>
+                </div>
+                <span class="gas-status-badge badge-safe" id="badge-h2s">Safe</span>
+              </div>
+              <div class="gas-card-mid-row">
+                <div class="gas-threshold-info">NIOSH REL 10 ppm · PEL 20 ppm</div>
+                <div class="gas-val-wrap">
+                  <span class="gas-value" id="val-gas-h2s">2.4</span>
+                  <span class="gas-unit">ppm</span>
+                </div>
+              </div>
+              <div class="gas-level-bar-track">
+                <div class="gas-level-bar-fill bar-safe" id="bar-gas-h2s" style="width: 12%;"></div>
+              </div>
+            </div>
+
+            <!-- Oxygen (O2 - ME2-O2 Sensor) -->
+            <div class="gas-metric-card" id="card-gas-o2">
+              <div class="gas-card-top-row">
+                <div class="gas-title-group">
+                  <span class="gas-icon-chip icon-o2">O₂</span>
+                  <div class="gas-name-group">
+                    <span class="gas-full">Oxygen Level</span>
+                    <span class="gas-sensor-tag">ME2-O2 sensor</span>
+                  </div>
+                </div>
+                <span class="gas-status-badge badge-safe" id="badge-o2">Safe</span>
+              </div>
+              <div class="gas-card-mid-row">
+                <div class="gas-threshold-info">OSHA Min 19.5% · Ambient 20.9%</div>
+                <div class="gas-val-wrap">
+                  <span class="gas-value" id="val-gas-o2">20.9</span>
+                  <span class="gas-unit">% vol</span>
+                </div>
+              </div>
+              <div class="gas-level-bar-track">
+                <div class="gas-level-bar-fill bar-safe" id="bar-gas-o2" style="width: 84%;"></div>
+              </div>
+            </div>
+
+            <!-- Temp & Humidity Dual Strip (SHT31 Sensor) -->
+            <div class="env-compact-row">
+              <div class="env-chip" id="card-env-temp">
+                <div class="env-chip-header">
+                  <span class="env-chip-lbl">Temp · SHT31</span>
+                  <span class="env-chip-state ok">Normal</span>
+                </div>
+                <span class="env-chip-val" id="val-env-temp">28.4 °C</span>
+              </div>
+              <div class="env-chip" id="card-env-hum">
+                <div class="env-chip-header">
+                  <span class="env-chip-lbl">Humidity</span>
+                  <span class="env-chip-state warn">High</span>
+                </div>
+                <span class="env-chip-val" id="val-env-hum">84.2 %</span>
+              </div>
+            </div>
+
+            <!-- Real-Time Gas Trend Sparkline -->
+            <div class="gas-trend-box">
+              <div class="trend-head">
+                <span class="trend-title">Concentration (30s)</span>
+                <div class="trend-legend">
+                  <span class="legend-tag ch4"><i class="dot-ch4"></i> CH₄</span>
+                  <span class="legend-tag co"><i class="dot-co"></i> CO</span>
+                  <span class="legend-tag co2"><i class="dot-co2"></i> CO₂</span>
+                  <span class="legend-tag h2s"><i class="dot-h2s"></i> H₂S</span>
+                  <span class="legend-tag o2"><i class="dot-o2"></i> O₂</span>
+                </div>
+              </div>
+              <canvas id="gas-trend-canvas" width="280" height="42"></canvas>
+            </div>
+          </div>
+        </section>
+
+      </aside>
+
+      <!-- ===================================================================== -->
+      <!-- CENTER HERO WORKSPACE: SPLIT INTO 2D SLAM MAP + DUAL-SPECTRUM VISION  -->
+      <!-- ===================================================================== -->
+      <div class="center-column center-split-column">
+
+        <!-- PART 1: RPLiDAR 2D SLAM OCCUPANCY GRID (RVIZ STYLE) -->
+        <section class="hud-panel hero-map-panel" id="panel-slam-hero">
+          
+          <!-- Map Overlay Top Header HUD -->
+          <div class="map-hud-header">
+            <div class="map-title-block">
+              <div class="map-type-tag">
+                <span class="live-blink"></span>
+                <span>RPLiDAR 2D SLAM</span>
+              </div>
+              <div class="slam-engine-info">
+                <span>SLAM Toolbox • Nav2</span>
+              </div>
+            </div>
+
+            <!-- Map View Controls -->
+            <div class="map-toolbar">
+              <div class="map-zoom-actions">
+                <button class="map-tool-btn" id="btn-map-zoomin" title="Zoom In (+)">+</button>
+                <button class="map-tool-btn" id="btn-map-zoomout" title="Zoom Out (-)">−</button>
+                <button class="map-tool-btn" id="btn-map-center" title="Center on Drone Position">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" class="map-center-reticle-svg" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="7.5" stroke="currentColor" stroke-width="2.2" />
+                    <line x1="12" y1="1.5" x2="12" y2="6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                    <line x1="12" y1="17.5" x2="12" y2="22.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                    <line x1="1.5" y1="12" x2="6.5" y2="12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                    <line x1="17.5" y1="12" x2="22.5" y2="12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                    <circle cx="12" cy="12" r="2.2" fill="#3898ec" />
+                  </svg>
+                </button>
+                <button class="map-tool-btn" id="btn-map-reset" title="Reset View">⟲</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- The Canvas 2D RPLiDAR & SLAM Engine -->
+          <div class="canvas-viewport-wrapper" id="slam-canvas-container">
+            <canvas id="slam-map-canvas"></canvas>
+
+            <!-- Map Inset HUD Overlays -->
+            <!-- 1. Coordinate & Pose Telemetry HUD -->
+            <div class="map-inset-hud top-left-hud">
+              <div class="hud-row"><span class="hud-k">UAV</span> <span class="hud-v highlight-cyan" id="hud-drone-xy">+38.4m, +14.2m</span></div>
+              <div class="hud-row"><span class="hud-k">Alt</span> <span class="hud-v" id="hud-drone-alt">1.65m AGL</span></div>
+              <div class="hud-row"><span class="hud-k">Yaw</span> <span class="hud-v" id="hud-drone-yaw">148.5° SE</span></div>
+              <div class="hud-row"><span class="hud-k">Vel</span> <span class="hud-v highlight-green" id="hud-drone-vel">0.72 m/s</span></div>
+            </div>
+
+            <!-- 2. SLAM Legend & Interactive Navigation Hint -->
+            <div class="map-inset-hud bottom-left-hud">
+              <div class="map-legend">
+                <div class="legend-item"><span class="leg-box leg-occupied"></span> Rock</div>
+                <div class="legend-item"><span class="leg-box leg-free"></span> Free</div>
+                <div class="legend-item"><span class="leg-box leg-lidar"></span> LiDAR</div>
+                <div class="legend-item"><span class="leg-box leg-path"></span> Path</div>
+                <div class="legend-item"><span class="leg-box leg-survivor"></span> Survivor</div>
+                <div class="legend-item"><span class="leg-box leg-gas"></span> Gas</div>
+              </div>
+            </div>
+
+            <!-- 3. Target Inspector Popover (dynamic when clicking survivor pins) -->
+            <div class="map-target-popover" id="map-target-card" style="display: none;">
+              <div class="popover-header">
+                <span class="popover-title" id="popover-title">SURVIVOR #02</span>
+                <button class="popover-close" id="btn-popover-close">✕</button>
+              </div>
+              <div class="popover-content" id="popover-content">
+                <!-- Injected via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Action & Control Bar Dock -->
+          <div class="map-bottom-controls">
+            <div class="control-actions-group">
+              <button class="ctrl-btn btn-mission-start" id="btn-ctrl-start" title="Launch Autonomous SLAM Exploration">
+                <svg viewBox="0 0 24 24" class="ctrl-icon" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <span>Start</span>
+              </button>
+
+              <button class="ctrl-btn btn-mission-pause" id="btn-ctrl-pause" title="Hold Drone Hover">
+                <svg viewBox="0 0 24 24" class="ctrl-icon" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                <span>Hold</span>
+              </button>
+
+              <button class="ctrl-btn btn-mission-rtl" id="btn-ctrl-rtl" title="Return to Base">
+                <svg viewBox="0 0 24 24" class="ctrl-icon" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>RTL</span>
+              </button>
+
+              <button class="ctrl-btn btn-mission-mark" id="btn-ctrl-mark" title="Mark Location">
+                <svg viewBox="0 0 24 24" class="ctrl-icon" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>Mark</span>
+              </button>
+            </div>
+
+            <!-- Emergency Stop Trigger -->
+            <div class="emergency-estop-wrap">
+              <button class="ctrl-btn btn-emergency-estop" id="btn-ctrl-estop" title="IMMEDIATE MOTOR CUTOFF & FAILSAFE LANDING">
+                <span class="estop-glow"></span>
+                <svg viewBox="0 0 24 24" class="ctrl-icon" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                <span>E-Stop</span>
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- PART 2: DUAL-SPECTRUM PAYLOAD VISION (RGB OPTICAL + FLIR THERMAL FOOTAGE) -->
+        <section class="hud-panel card-ai-vision" id="panel-ai-vision">
+          <div class="panel-header">
+            <div class="header-title-wrap">
+              <svg viewBox="0 0 24 24" class="panel-icon highlight-magenta" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <h2>Dual-Spectrum Vision</h2>
+            </div>
+
+            <div class="vision-tab-group">
+              <button class="vision-tab active" id="tab-vision-dual" title="View Both Feeds">Dual</button>
+              <button class="vision-tab" id="tab-vision-rgb" title="RGB Optical">RGB</button>
+              <button class="vision-tab" id="tab-vision-thermal" title="FLIR Thermal">Thermal</button>
+            </div>
+          </div>
+
+          <div class="dual-camera-grid" id="dual-camera-wrapper">
+
+            <!-- A. RGB Optical Camera (Awaiting Video Stream) -->
+            <div class="cam-box cam-rgb-box" id="box-cam-rgb">
+              <div class="cam-header-tag">
+                <span class="cam-rec-dot cam-offline-dot"></span>
+                <span>Cam-01 · RGB Optical</span>
+                <span class="cam-offline-badge">NO FEED</span>
+              </div>
+              <canvas id="camera-rgb-canvas" width="480" height="240"></canvas>
+
+              <!-- Centered Camera Off / No Video Signal Symbol Overlay -->
+              <div class="cam-no-signal-overlay">
+                <div class="cam-no-signal-icon-wrap">
+                  <svg viewBox="0 0 64 64" fill="none" class="cam-off-svg" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M21 14H43L48 21H56C58.76 21 61 23.24 61 26V52C61 54.76 58.76 57 56 57H8C5.24 57 3 54.76 3 52V26C3 23.24 5.24 21 8 21H16L21 14Z"
+                      stroke="currentColor"
+                      stroke-width="4.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <rect x="9" y="27" width="6" height="6" rx="1" fill="currentColor" />
+                    <circle cx="32" cy="39" r="11" stroke="currentColor" stroke-width="4.5" />
+                    <line x1="4" y1="4" x2="60" y2="60" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <span class="cam-no-signal-title">NO CAMERA FEED</span>
+                <span class="cam-no-signal-sub">RGB Payload Video Not Integrated</span>
+              </div>
+
+              <div class="cam-box-hud">
+                <span class="cam-hud-badge">Standby · V4L2 / RTSP</span>
+                <span class="cam-hud-sub">Awaiting Camera Stream</span>
+              </div>
+            </div>
+
+            <!-- B. Thermal LWIR Camera (Awaiting Thermal Stream) -->
+            <div class="cam-box cam-thermal-box" id="box-cam-thermal">
+              <div class="cam-header-tag thermal-tag">
+                <span class="cam-rec-dot cam-offline-dot thermal-dot"></span>
+                <span>Cam-02 · FLIR LWIR</span>
+                <span class="cam-offline-badge thermal-badge">NO FEED</span>
+              </div>
+              <canvas id="camera-thermal-canvas" width="480" height="240"></canvas>
+
+              <!-- Centered Camera Off / No Video Signal Symbol Overlay -->
+              <div class="cam-no-signal-overlay">
+                <div class="cam-no-signal-icon-wrap">
+                  <svg viewBox="0 0 64 64" fill="none" class="cam-off-svg" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M21 14H43L48 21H56C58.76 21 61 23.24 61 26V52C61 54.76 58.76 57 56 57H8C5.24 57 3 54.76 3 52V26C3 23.24 5.24 21 8 21H16L21 14Z"
+                      stroke="currentColor"
+                      stroke-width="4.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                    <rect x="9" y="27" width="6" height="6" rx="1" fill="currentColor" />
+                    <circle cx="32" cy="39" r="11" stroke="currentColor" stroke-width="4.5" />
+                    <line x1="4" y1="4" x2="60" y2="60" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" />
+                  </svg>
+                </div>
+                <span class="cam-no-signal-title">NO THERMAL FEED</span>
+                <span class="cam-no-signal-sub">FLIR Radiometric Stream Not Integrated</span>
+              </div>
+
+              <div class="cam-box-hud thermal-hud">
+                <span class="cam-hud-badge thermal-badge">Standby · Radiometric LWIR</span>
+                <span class="cam-hud-sub highlight-amber">Awaiting Thermal Stream</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="camera-footer-controls">
+            <div class="feed-btn-group">
+              <button class="cam-btn active" id="btn-cam-survivor" title="Surface Survivor In Line of Sight">Survivor Sight</button>
+              <button class="cam-btn" id="btn-cam-debris" title="Survivor Trapped Under Rock Rubble">Trapped Debris</button>
+              <button class="cam-btn" id="btn-cam-drift" title="Open Mine Tunnel Exploration">Clear Drift</button>
+            </div>
+            <button class="thermal-palette-btn" id="btn-thermal-palette" title="Cycle Thermal Palette">🎨 Palette</button>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- RIGHT COLUMN: EXPANDED MISSION TELEMETRY METRICS & FULL-HEIGHT LOG    -->
+      <!-- ===================================================================== -->
+      <aside class="side-column right-column">
+
+        <!-- 3.1 Mission Statistics Cards -->
+        <section class="hud-panel card-mission-stats" id="panel-mission-stats">
+          <div class="panel-header compact">
+            <div class="header-title-wrap">
+              <svg viewBox="0 0 24 24" class="panel-icon" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              <h2>Mission Telemetry</h2>
+            </div>
+            <span class="stats-subtag">Delta-7</span>
+          </div>
+
+          <div class="stats-grid-2x2">
+            <!-- Survivors Located -->
+            <div class="stat-card highlight-card-magenta">
+              <div class="stat-head">
+                <span class="stat-name">Survivors</span>
+                <span class="stat-sub">RGB + FLIR</span>
+              </div>
+              <div class="stat-val-group">
+                <span class="stat-number highlight-magenta" id="stat-survivors-count">2</span>
+                <span class="stat-suffix">/ 3 est</span>
+              </div>
+              <div class="stat-foot-note">📍 1 under debris</div>
+            </div>
+
+            <!-- Hazards Flagged -->
+            <div class="stat-card highlight-card-amber">
+              <div class="stat-head">
+                <span class="stat-name">Hazards</span>
+                <span class="stat-sub">Gas + Collapse</span>
+              </div>
+              <div class="stat-val-group">
+                <span class="stat-number highlight-amber" id="stat-hazards-count">3</span>
+                <span class="stat-suffix">zones</span>
+              </div>
+              <div class="stat-foot-note">⚠️ 1 critical CH₄</div>
+            </div>
+
+            <!-- Area Explored -->
+            <div class="stat-card highlight-card-cyan">
+              <div class="stat-head">
+                <span class="stat-name">Explored</span>
+                <span class="stat-sub">2D Occupancy</span>
+              </div>
+              <div class="stat-val-group">
+                <span class="stat-number highlight-cyan" id="stat-area-explored">68.4</span>
+                <span class="stat-suffix">%</span>
+              </div>
+              <div class="stat-foot-note" id="stat-area-meters">1,420 m² mapped</div>
+            </div>
+
+            <!-- Odometry Distance -->
+            <div class="stat-card highlight-card-green">
+              <div class="stat-head">
+                <span class="stat-name">Distance</span>
+                <span class="stat-sub">Nav2 Odom</span>
+              </div>
+              <div class="stat-val-group">
+                <span class="stat-number highlight-green" id="stat-dist-traveled">384</span>
+                <span class="stat-suffix">m</span>
+              </div>
+              <div class="stat-foot-note">⚡ Avg 0.68 m/s</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3.2 Ground Control Station Alert Log Feed -->
+        <section class="hud-panel card-alerts-feed" id="panel-alerts-feed">
+          <div class="panel-header compact">
+            <div class="header-title-wrap">
+              <svg viewBox="0 0 24 24" class="panel-icon highlight-red" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <h2>Mission Event Log</h2>
+            </div>
+            <button class="clear-log-btn" id="btn-clear-alerts" title="Acknowledge all alerts">Ack all</button>
+          </div>
+
+          <div class="alerts-log-scroll" id="alerts-log-container">
+            <!-- Populated via JavaScript -->
+          </div>
+        </section>
+
+      </aside>
+
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- 4. MODALS & POPUPS (E-STOP & TACTICAL POI)                                -->
+    <!-- ========================================================================= -->
+    
+    <!-- Emergency E-Stop Confirmation Modal -->
+    <div class="modal-backdrop" id="modal-estop" style="display: none;">
+      <div class="modal-dialog estop-dialog">
+        <div class="modal-alert-icon">⚠️</div>
+        <h3 class="modal-title">Confirm hard motor cutoff (E-Stop)</h3>
+        <p class="modal-desc">
+          Executing Emergency Stop will <strong>immediately cut motor PWM signals</strong> on the Pixhawk 2.4.8 flight controller. The drone will execute an unpowered failsafe landing.
+        </p>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="btn-cancel-estop">Cancel / Resume</button>
+          <button class="btn-danger-confirm" id="btn-confirm-estop">Confirm hard E-Stop</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mark Location / Tactical POI Modal -->
+    <div class="modal-backdrop" id="modal-mark-poi" style="display: none;">
+      <div class="modal-dialog">
+        <h3 class="modal-title">Mark tactical POI in mine map</h3>
+        <p class="modal-desc">Drop a labeled waypoint at drone coordinates (X: <span id="mark-x">0.0</span>, Y: <span id="mark-y">0.0</span>).</p>
+        <div class="input-group">
+          <label for="input-poi-type">Marker type / classification</label>
+          <select id="input-poi-type" class="hud-select">
+            <option value="SURVIVOR">Survivor Detected (Surface RGB)</option>
+            <option value="SURVIVOR_DEBRIS">Survivor Trapped Under Debris (FLIR 36.8°C)</option>
+            <option value="GAS_SPIKE">Hazardous Gas Pocket (CH₄ / CO)</option>
+            <option value="STRUCTURAL">Structural Cave-in / Blockage</option>
+            <option value="REFUGE">Mine Refuge Chamber</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="input-poi-notes">Operational notes</label>
+          <input type="text" id="input-poi-notes" class="hud-input" placeholder="e.g. Thermal heat signature detected under rock rubble" value="FLIR 3.5 radiometric body heat confirmed">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" id="btn-cancel-poi">Cancel</button>
+          <button class="btn-primary-confirm" id="btn-save-poi">Save marker</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="slam_map.js"></script>
+  <script src="ai_camera.js"></script>
+  <script src="telemetry.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
