@@ -3,10 +3,12 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![ROS 2](https://img.shields.io/badge/ROS_2-Jazzy-22314E?style=for-the-badge&logo=ros)](https://docs.ros.org/)
-[![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=for-the-badge&logo=vercel)](https://vercel.com/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-upthrustmissionmonitor.vercel.app-00C7B7?style=for-the-badge&logo=vercel)](https://upthrustmissionmonitor.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 > **Team Upthrust Ground Control Station (GCS)**: A mission-critical, high-performance web console engineered for autonomous drone exploration, real-time RPLiDAR 2D SLAM mapping, dual-spectrum thermal computer vision, multi-gas atmospheric sensing, and subterranean search-and-rescue operations.
+>
+> 🌐 **Live Website**: [https://upthrustmissionmonitor.vercel.app](https://upthrustmissionmonitor.vercel.app)
 
 ---
 
