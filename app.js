@@ -179,9 +179,7 @@ class MineRescueApp {
       btnStart.addEventListener('click', () => {
         window.missionState = 'EXPLORING';
         if (window.slamMap) {
-          if (window.slamMap.isRtl || window.slamMap.isCustomGoal) {
-            window.slamMap.resumePatrol();
-          }
+          window.slamMap.resumePatrol();
         }
         this.updateMissionStateUI('Armed • Flight', 'GUIDED_NOGPS', 'highlight-green');
         this.logEvent('Info', 'Autonomous RPLiDAR SLAM exploration mission active along Nav2 path.');

@@ -27,8 +27,10 @@ yarn-error.log*
 .env*.local
 .env
 
-# vercel
-.vercel
+# vercel.vercel
+__pycache__/
+*.pyc
+*_raw.mp4
 
 # typescript / ide
 *.tsbuildinfo
